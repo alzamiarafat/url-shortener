@@ -5,30 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\Url;
 use Illuminate\Http\Request;
 use Inertia\Inertia; 
-use Illuminate\Support\Str;
+use App\Interfaces\UrlRepositoryInterface;
+use Illuminate\Support\Facades\Redirect;
 
 class UrlController extends Controller
 {
+    private UrlRepositoryInterface $urlRepository;
+
+    public function __construct(UrlRepositoryInterface $urlRepository) 
+    {
+        $this->urlRepository = $urlRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index() 
     {
         return Inertia::render('index', [
-            'urls' => Url::all()
+            'urls' => $this->urlRepository->getAllUrls()
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        // 
     }
 
     /**
@@ -37,19 +35,15 @@ class UrlController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $code = Str::random(5);
-        $origin = env('URL', 'http://127.0.0.1:8000/');
-        $shortened_url =  $origin . $code;
-        Url::create([
-            'code' => $code,
-            'original_url' => $request->url,
-            'shortened_url' =>  $shortened_url
-        ]);
 
-        dd(434);
-        return view('url_shortener.index', ['shortenedUrl' => $link->shortened_url]);
+     public function store(Request $request)
+    {
+        $urlDetails = $request->only([
+            'url'
+        ]);
+        $result = $this->urlRepository->createUrl($urlDetails);
+        return Redirect::route('url.index');
+        // return to_route('url.index');
     }
 
     /**
@@ -58,32 +52,10 @@ class UrlController extends Controller
      * @param  \App\Models\Url  $url
      * @return \Illuminate\Http\Response
      */
-    public function show(Url $url)
+    public function show(Request $request, string $code)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Url  $url
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Url $url)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Url  $url
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Url $url)
-    {
-        //
+        $url = $this->urlRepository->getUrlByCode($code);
+        return redirect($url->original_url);
     }
 
     /**
@@ -92,8 +64,11 @@ class UrlController extends Controller
      * @param  \App\Models\Url  $url
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Url $url)
+    public function destroy(Request $request)
     {
-        //
+        $urlId = $request->route('url');
+        $this->urlRepository->deleteUrl($urlId);
+
+        // return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 }

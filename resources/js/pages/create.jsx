@@ -1,6 +1,7 @@
 // resources/js/Pages/Create.jsx
 import React, { useState } from "react";
-import { router } from "@inertiajs/react"; // We need to import this router for making POST request with our form
+import { toast } from "react-toastify";
+import axios from "axios";
 
 export default function Create() {
     const [values, setValues] = useState({
@@ -20,26 +21,36 @@ export default function Create() {
     // store function of PostContoller
     function handleSubmit(e) {
         e.preventDefault();
-        router.post("/url", values);
+        axios.post(`/url`, values).then(() => {
+            toast.success("Shortened link generate !", {
+                position: "bottom-right",
+                className: "foo-bar",
+                autoClose: 5000,
+            });
+            window.setTimeout(function () {
+                window.location.reload();
+            }, 5000);
+        });
     }
+
     return (
-        <div class="container mt-3">
+        <div className="container mt-3">
             <form onSubmit={handleSubmit}>
-                <div class="input-group">
+                <div className="input-group">
                     <input
                         id="url"
                         name="url"
                         type="text"
                         value={values.url}
                         onChange={handleChange}
-                        class="form-control p-3 mr-3"
+                        className="form-control p-3 mr-3"
                         placeholder="Enter link here"
                         aria-label="Enter link here"
                         aria-describedby="basic-addon2"
                         required
                     />
-                    <div class="input-group-append">
-                        <button class="btn btn-secondary p-3" type="submit">
+                    <div className="input-group-append">
+                        <button className="btn btn-secondary p-3" type="submit">
                             Shorten URL
                         </button>
                     </div>

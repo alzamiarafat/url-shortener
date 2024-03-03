@@ -1,8 +1,8 @@
 export default function Navbar() {
     return (
-        <nav class="navbar navbar-light bg-success">
-            <a class="navbar-brand" href="#">
-                Navbar
+        <nav className="navbar navbar-light bg-success">
+            <a className="navbar-brand" href="#">
+
             </a>
         </nav>
     );

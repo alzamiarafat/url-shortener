@@ -1,6 +1,7 @@
 ## About Project
 
 Clone the project from github link
+</br>
 Create .env file as .env.example
 Create database and set the database name in the .env file
 Run the command
